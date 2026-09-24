@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOTO STATISTIC – Calculadora de Estadística Inferencial</title>
+<style>
+/* ===== 1. VARIABLES DE COLOR Y TIPOGRAFÍA ===== */
+:root{
+  --bg:#070b1a; --panel:#0e1530; --panel2:#141d40; --line:#2a3768;
+  --blue:#5aa9ff; --violet:#9a7bff; --text:#eef1ff; --muted:#9aa6d1;
+  --ok:#5ce1c6; --err:#ff7a93;
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0}
+body{
+  font-family:var(--font);color:var(--text);line-height:1.55;min-height:100vh;padding:24px 16px 48px;
+  background:radial-gradient(900px 500px at 15% -10%,#1c2a63 0%,transparent 60%),
+             radial-gradient(700px 500px at 100% 10%,#2b1a5c 0%,transparent 55%),var(--bg);
+}
+.wrap{max-width:940px;margin:0 auto}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ===== 2. ENCABEZADO ===== */
+header{text-align:center;padding:28px 0 20px}
+.stitch{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
+.stitch i{flex:0 1 90px;border-top:2px dashed var(--violet);opacity:.7}
+.button-dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#cdbdff,var(--violet) 60%,#4b3aa0);
+  box-shadow:0 0 14px rgba(154,123,255,.6);position:relative}
+.button-dot::after{content:"";position:absolute;inset:5px;background:
+  radial-gradient(circle,#0a1030 2px,transparent 2.5px) 0 0/6px 6px;opacity:.9}
+h1{font-family:var(--serif);font-size:clamp(2.1rem,7vw,3.6rem);letter-spacing:.12em;font-weight:700;
+  background:linear-gradient(90deg,var(--blue),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(120,120,255,.35))}
+.subtitle{font-size:1.15rem;margin-top:6px}
+.desc{color:var(--muted);max-width:52ch;margin:6px auto 0}
+
+/* ===== 3. TARJETAS DE MENÚ ===== */
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0}
+.card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;
+  padding:24px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .25s,border-color .25s,box-shadow .25s}
+.card:hover{transform:translateY(-3px);border-color:var(--violet)}
+.card.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 12px 34px rgba(90,169,255,.18)}
+.card svg{width:44px;height:44px;stroke:var(--blue);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-bottom:8px}
+.card h2{font-size:1.1rem;letter-spacing:.08em;margin-bottom:6px}
+.card p{color:var(--muted);font-size:.95rem;margin-bottom:16px}
+
+/* ===== 4. BOTONES ===== */
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:11px 26px;font-weight:700;letter-spacing:.06em;
+  transition:transform .15s,box-shadow .2s,filter .2s}
+.btn{background:linear-gradient(90deg,#3d7bea,var(--violet));color:#fff;box-shadow:0 6px 18px rgba(90,110,255,.35)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(120,110,255,.5);filter:brightness(1.08)}
+.btn2{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn2:hover{color:var(--text);border-color:var(--blue)}
+
+/* ===== 5. PANELES DE CALCULADORA ===== */
+.panel{display:none;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px;
+  box-shadow:0 14px 40px rgba(0,0,0,.45);animation:in .35s ease}
+.panel.show{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel h3{font-family:var(--serif);font-size:1.5rem;margin-bottom:4px}
+.panel .hint{color:var(--muted);margin-bottom:18px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;font:inherit;color:var(--text);background:#0a1029;border:1px solid var(--line);
+  border-radius:12px;padding:11px 14px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px rgba(90,169,255,.2)}
+textarea{min-height:120px;resize:vertical}
+.actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+/* ===== 6. RESULTADOS ===== */
+.msg{display:none;margin-top:16px;padding:12px 16px;border-radius:12px;background:rgba(255,122,147,.1);
+  border:1px solid var(--err);color:var(--err)}
+.result{display:none;margin-top:22px;padding:22px;border-radius:18px;border:1px solid var(--violet);
+  background:linear-gradient(160deg,#1a2050,#120f36);box-shadow:inset 0 0 30px rgba(154,123,255,.12)}
+.big{font-size:clamp(1.3rem,4.5vw,2rem);font-weight:800;color:var(--ok);text-align:center;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+.chip{background:#0a1029;border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:.92rem}
+.formula{text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;overflow-x:auto;padding-top:4px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.stat{background:#0a1029;border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.stat span{display:block;font-size:.85rem;color:var(--muted)}
+.stat b{font-size:1.25rem}
+.stat.hl{border-color:var(--ok)}
+.stat.hl b{color:var(--ok)}
+
+/* ===== 7. SECCIÓN EDUCATIVA ===== */
+.edu{margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.edu section{background:var(--panel);border:1px dashed var(--line);border-radius:18px;padding:22px}
+.edu h4{font-family:var(--serif);font-size:1.2rem;margin-bottom:8px}
+.edu p,.edu li{color:var(--muted);font-size:.95rem}
+.edu ul{list-style:none;padding:0}
+.edu li{margin:8px 0;font-family:var(--serif);color:var(--text)}
+footer{text-align:center;color:var(--muted);font-size:.85rem;margin-top:32px}
+
+/* ===== 8. RESPONSIVE ===== */
+@media(max-width:640px){
+  .menu,.grid,.edu,.stats{grid-template-columns:1fr}
+  .panel{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== ENCABEZADO ===== -->
+  <header>
+    <div class="stitch"><i></i><span class="button-dot"></span><i></i></div>
+    <h1>SOTO STATISTIC</h1>
+    <p class="subtitle">Calculadora de Estadística Inferencial</p>
+    <p class="desc">Calcula el tamaño de muestra y la desviación estándar de manera rápida y sencilla.</p>
+  </header>
+
+  <!-- ===== MENÚ DE TARJETAS ===== -->
+  <div class="menu">
+    <div class="card" id="card-muestra">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="5" width="30" height="38" rx="5"/><rect x="14" y="10" width="20" height="8" rx="2"/><path d="M15 26h2M23 26h2M31 26h2M15 34h2M23 34h2M31 34h2"/></svg>
+      <h2>TAMAÑO DE MUESTRA</h2>
+      <p>Determina cuántos datos necesitas para tu estudio.</p>
+      <button class="btn" data-target="muestra">CALCULAR</button>
+    </div>
+    <div class="card" id="card-desv">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 42h36M6 42V6"/><rect x="12" y="26" width="6" height="16"/><rect x="22" y="14" width="6" height="28"/><rect x="32" y="22" width="6" height="20"/></svg>
+      <h2>DESVIACIÓN ESTÁNDAR</h2>
+      <p>Calcula la dispersión de un conjunto de datos.</p>
+      <button class="btn" data-target="desv">CALCULAR</button>
+    </div>
+  </div>
+
+  <!-- ===== MÓDULO 1: TAMAÑO DE MUESTRA ===== -->
+  <section class="panel" id="panel-muestra">
+    <h3>Calculadora de Tamaño de Muestra</h3>
+    <p class="hint">Población finita. Completa los campos y presiona CALCULAR.</p>
+    <div class="grid">
+      <div><label for="N">Tamaño de población (N)</label><input id="N" type="number" min="1" step="any" placeholder="Ej: 500"></div>
+      <div><label for="conf">Nivel de confianza</label>
+        <select id="conf"><option value="1.645">90%</option><option value="1.96" selected>95%</option><option value="2.576">99%</option></select></div>
+      <div><label for="E">Margen de error (%)</label><input id="E" type="number" step="any" placeholder="Ej: 5"></div>
+      <div><label for="p">Proporción esperada p (%)</label><input id="p" type="number" step="any" value="50"></div>
+    </div>
+    <div class="msg" id="msg-muestra" role="alert"></div>
+    <div class="actions"><button class="btn" id="calc-muestra">CALCULAR</button><button class="btn2" id="clear-muestra">LIMPIAR</button></div>
+    <div class="result" id="res-muestra">
+      <div class="big" id="n-out"></div>
+      <div class="chips" id="n-params"></div>
+      <div class="formula">n = (N × Z² × p × q) / ((N − 1) × E² + Z² × p × q)</div>
+    </div>
+  </section>
+
+  <!-- ===== MÓDULO 2: DESVIACIÓN ESTÁNDAR ===== -->
+  <section class="panel" id="panel-desv">
+    <h3>Calculadora de Desviación Estándar</h3>
+    <p class="hint">Ingresa los datos separados por comas, espacios o saltos de línea.</p>
+    <label for="datos">Datos</label>
+    <textarea id="datos" placeholder="12, 15, 18, 20, 14, 16"></textarea>
+    <div class="msg" id="msg-desv" role="alert"></div>
+    <div class="actions"><button class="btn" id="calc-desv">CALCULAR</button><button class="btn2" id="clear-desv">LIMPIAR</button></div>
+    <div class="result" id="res-desv">
+      <div class="stats">
+        <div class="stat hl"><span>Desviación estándar poblacional</span><b id="o-sp"></b></div>
+        <div class="stat hl"><span>Desviación estándar muestral</span><b id="o-ss"></b></div>
+        <div class="stat"><span>Número de datos</span><b id="o-n"></b></div>
+        <div class="stat"><span>Media</span><b id="o-mean"></b></div>
+        <div class="stat"><span>Varianza poblacional</span><b id="o-vp"></b></div>
+        <div class="stat"><span>Varianza muestral</span><b id="o-vs"></b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECCIÓN EDUCATIVA ===== -->
+  <div class="edu">
+    <section>
+      <h4>¿Qué significa cada resultado?</h4>
+      <p><b>Tamaño de muestra:</b> Indica la cantidad de elementos que deben formar parte de una muestra para realizar un estudio estadístico bajo los parámetros establecidos.</p>
+      <p style="margin-top:10px"><b>Desviación estándar:</b> Indica qué tan dispersos se encuentran los datos respecto a su media.</p>
+    </section>
+    <section>
+      <h4>Fórmulas utilizadas</h4>
+      <ul>
+        <li>n = (N·Z²·p·q) / ((N−1)·E² + Z²·p·q)</li>
+        <li>x̄ = Σx / n</li>
+        <li>σ² = Σ(x − x̄)² / n &nbsp; σ = √σ²</li>
+        <li>s² = Σ(x − x̄)² / (n − 1) &nbsp; s = √s²</li>
+      </ul>
+    </section>
+  </div>
+  <footer>SOTO STATISTIC · Estadística Inferencial</footer>
+</div>
+
+<script>
+/* ===== UTILIDADES ===== */
+const $ = id => document.getElementById(id);
+
+function showError(id, text){ const m=$(id); m.textContent=text; m.style.display="block"; }
+function hideMsg(id){ $(id).style.display="none"; }
+
+/* ===== NAVEGACIÓN ENTRE CALCULADORAS ===== */
+function openPanel(name){
+  ["muestra","desv"].forEach(k=>{
+    $("panel-"+k).classList.toggle("show", k===name);
+    $("card-"+k).classList.toggle("active", k===name);
+  });
+  $("panel-"+name).scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.querySelectorAll("[data-target]").forEach(b=>
+  b.addEventListener("click",()=>openPanel(b.dataset.target)));
+
+/* ===== MÓDULO 1: TAMAÑO DE MUESTRA ===== */
+function calcularMuestra(){
+  hideMsg("msg-muestra"); $("res-muestra").style.display="none";
+
+  const rawN=$("N").value.trim(), rawE=$("E").value.trim(), rawP=$("p").value.trim();
+  if(rawN===""||rawE===""||rawP===""){ return showError("msg-muestra","Completa todos los campos."); }
+
+  const N=Number(rawN), E=Number(rawE)/100, p=Number(rawP)/100, Z=Number($("conf").value);
+  if(!isFinite(N)||!isFinite(E)||!isFinite(p)) return showError("msg-muestra","Ingresa solo valores numéricos.");
+  if(N<=0)            return showError("msg-muestra","El tamaño de población (N) debe ser mayor que 0.");
+  if(E<=0||E>=1)      return showError("msg-muestra","El margen de error debe ser mayor que 0% y menor que 100%.");
+  if(p<0||p>1)        return showError("msg-muestra","La proporción esperada (p) debe estar entre 0% y 100%.");
+
+  const q=1-p;
+  const n=Math.ceil((N*Z*Z*p*q)/((N-1)*E*E+Z*Z*p*q));   // se redondea hacia arriba
+
+  if(!isFinite(n)) return showError("msg-muestra","No se puede calcular con estos valores. Revisa N y p.");
+
+  $("n-out").textContent="Tamaño de muestra requerido: "+n;
+  $("n-params").innerHTML=[["N",N],["Z",Z],["p",p.toFixed(2)],["q",q.toFixed(2)],["E",E.toFixed(2)]]
+    .map(([k,v])=>`<span class="chip">${k} = ${v}</span>`).join("");
+  $("res-muestra").style.display="block";
+}
+function limpiarMuestra(){
+  $("N").value=""; $("E").value=""; $("p").value="50"; $("conf").value="1.96";
+  hideMsg("msg-muestra"); $("res-muestra").style.display="none";
+}
+
+/* ===== MÓDULO 2: DESVIACIÓN ESTÁNDAR ===== */
+const fmt = x => Number.isInteger(x) ? String(x) : x.toFixed(4).replace(/0+$/,"").replace(/\.$/,"");
+
+function calcularDesv(){
+  hideMsg("msg-desv"); $("res-desv").style.display="none";
+
+  const texto=$("datos").value.trim();
+  if(texto==="") return showError("msg-desv","Ingresa al menos un dato.");
+
+  // separa por comas, espacios o saltos de línea
+  const partes=texto.split(/[\s,;]+/).filter(s=>s!=="");
+  const datos=partes.map(Number);
+  const malos=partes.filter((s,i)=>!isFinite(datos[i]));
+  if(malos.length) return showError("msg-desv","Valor no numérico: \""+malos[0]+"\". Usa solo números (punto como decimal).");
+  if(datos.length<2) return showError("msg-desv","Ingresa al menos 2 datos para calcular la desviación muestral.");
+
+  const n=datos.length;
+  const media=datos.reduce((a,b)=>a+b,0)/n;
+  const sc=datos.reduce((a,x)=>a+(x-media)**2,0);   // Σ(x − x̄)²
+  const vp=sc/n, vs=sc/(n-1);
+
+  $("o-n").textContent=n;
+  $("o-mean").textContent=fmt(media);
+  $("o-vp").textContent=fmt(vp);
+  $("o-vs").textContent=fmt(vs);
+  $("o-sp").textContent=fmt(Math.sqrt(vp));
+  $("o-ss").textContent=fmt(Math.sqrt(vs));
+  $("res-desv").style.display="block";
+}
+function limpiarDesv(){
+  $("datos").value=""; hideMsg("msg-desv"); $("res-desv").style.display="none";
+}
+
+/* ===== EVENTOS ===== */
+$("calc-muestra").addEventListener("click",calcularMuestra);
+$("clear-muestra").addEventListener("click",limpiarMuestra);
+$("calc-desv").addEventListener("click",calcularDesv);
+$("clear-desv").addEventListener("click",limpiarDesv);
+["N","E","p"].forEach(id=>$(id).addEventListener("keydown",e=>{ if(e.key==="Enter") calcularMuestra(); }));
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+SOTO ESTADÍSTICO
+====================
+Cómo abrirlo: doble clic en index.html (funciona sin internet ni instalación).
+Si algo no carga, usa Chrome o Edge, o desde esta carpeta ejecuta:  python3 -m http.server 8000   y abre http://localhost:8000
+
+Módulos
+- Muestreo: tamaño de muestra (despeja n, e, confianza, σ o N), afijación estratificada, selección MAS/sistemático/conglomerados, laboratorio de datos (pega tu tabla), guía.
+- Conteo: factorial, permutaciones, combinaciones, variaciones, circulares y con repetición.
+- Descriptiva y regresión: medidas, tabla de frecuencias, histograma, regresión lineal y correlación.
+- Intervalos de confianza: media, proporción, dos medias, dos proporciones, varianza.
+- Pruebas de hipótesis: media, proporción, dos medias, pareadas, dos proporciones, varianzas (χ², F), chi-cuadrado. Con los pasos ① a ⑥ y la campana R.A./R.R.
+- Distribuciones: normal, binomial, Poisson, calculadora de valores críticos y valor p.
+- Tablas estadísticas: Z, t, χ², F, binomial, Poisson con búsqueda y exportación.
+- Cuaderno: guarda resultados y exporta un documento completo.
+
+Exportar: cada resultado tiene botones Excel, Word, PDF e Imprimir.
+Tecnologías: HTML + CSS + JavaScript puro; ExcelJS, docx y html2pdf (incluidas en /lib).
